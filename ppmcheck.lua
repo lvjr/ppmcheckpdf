@@ -82,7 +82,7 @@ local function getimgopt(imgext)
 end
 
 local function pdftoimg(path, pdf)
-  cmd = "pdftoppm -singlefile" .. getimgopt(imgext) .. pdf .. " " .. jobname(pdf)
+  cmd = "pdftoppm " .. getimgopt(imgext) .. pdf .. " " .. jobname(pdf)
   run(path, cmd)
 end
 
@@ -125,7 +125,11 @@ local function main()
   local files = getfiles(testdir, pattern)
   for _, v in ipairs(files) do
     pdftoimg(testdir, v)
-    ppmcheck(jobname(v))
+    pattern = jobname(v):gsub("%-", "%%-") .. "%-.+%" .. imgext .. "$"
+    local imgfiles = getfiles(testdir, pattern)
+    for _, i in ipairs(imgfiles) do
+      ppmcheck(jobname(i))
+    end
   end
 end
 
