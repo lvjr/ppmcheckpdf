@@ -92,36 +92,40 @@ local function saveimgmd5(imgname, md5file, newmd5)
   writefile(md5file, newmd5)
 end
 
+local function ppmcheck(basename)
+  local imgname = basename .. imgext
+  local md5file = testfiledir .. "/" .. basename .. ".md5"
+  local newmd5 = filesum(testdir .. "/" .. imgname)
+  if fileexists(md5file) then
+    local oldmd5 = readfile(md5file)
+    if newmd5 == oldmd5 then
+      print("md5 check passed for " .. imgname)
+    else
+      print("md5 check failed for " .. imgname)
+      local imgdiffexe = os.getenv("imgdiffexe")
+      if imgdiffexe then
+        local oldimg = abspath(testfiledir) .. "/" .. imgname
+        local newimg = abspath(testdir) .. "/" .. imgname
+        local diffname = basename .. ".diff.png"
+        local cmd = imgdiffexe .. " " .. oldimg .. " " .. newimg
+                    .. " -compose src " .. diffname
+        print("creating image diff file " .. diffname)
+        run(testdir, cmd)
+        elseif arg[1] == "save" then
+          saveimgmd5(imgname, md5file, newmd5)
+        end
+      end
+  else
+    saveimgmd5(imgname, md5file, newmd5)
+  end
+end
+
 local function main()
   local pattern = "%" .. pdfext .. "$"
   local files = getfiles(testdir, pattern)
   for _, v in ipairs(files) do
     pdftoimg(testdir, v)
-    local imgname = jobname(v) .. imgext
-    local md5file = testfiledir .. "/" .. jobname(v) .. ".md5"
-    local newmd5 = filesum(testdir .. "/" .. imgname)
-    if fileexists(md5file) then
-      local oldmd5 = readfile(md5file)
-      if newmd5 == oldmd5 then
-        print("md5 check passed for " .. imgname)
-      else
-        print("md5 check failed for " .. imgname)
-        local imgdiffexe = os.getenv("imgdiffexe")
-        if imgdiffexe then
-          local oldimg = abspath(testfiledir) .. "/" .. imgname
-          local newimg = abspath(testdir) .. "/" .. imgname
-          local diffname = jobname(v) .. ".diff.png"
-          local cmd = imgdiffexe .. " " .. oldimg .. " " .. newimg
-                      .. " -compose src " .. diffname
-          print("creating image diff file " .. diffname)
-          run(testdir, cmd)
-          elseif arg[1] == "save" then
-            saveimgmd5(imgname, md5file, newmd5)
-          end
-        end
-    else
-      saveimgmd5(imgname, md5file, newmd5)
-    end
+    ppmcheck(jobname(v))
   end
 end
 
