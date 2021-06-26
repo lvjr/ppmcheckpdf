@@ -125,7 +125,7 @@ local function main()
   local files = getfiles(testdir, pattern)
   for _, v in ipairs(files) do
     pdftoimg(testdir, v)
-    pattern = jobname(v):gsub("%-", "%%-") .. "%-.+%" .. imgext .. "$"
+    pattern = "^" .. jobname(v):gsub("%-", "%%-") .. "%-%d+%" .. imgext .. "$"
     local imgfiles = getfiles(testdir, pattern)
     if #imgfiles == 1 then
       local imgname = jobname(v) .. imgext
