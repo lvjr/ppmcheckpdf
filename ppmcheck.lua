@@ -93,14 +93,17 @@ local function saveimgmd5(imgname, md5file, newmd5)
 end
 
 local function ppmcheck(job)
+  local errorlevel
   local imgname = job .. imgext
   local md5file = testfiledir .. "/" .. job .. ".md5"
   local newmd5 = filesum(testdir .. "/" .. imgname)
   if fileexists(md5file) then
     local oldmd5 = readfile(md5file)
     if newmd5 == oldmd5 then
+      errorlevel = 0
       print("md5 check passed for " .. imgname)
     else
+      errorlevel = 1
       print("md5 check failed for " .. imgname)
       local imgdiffexe = os.getenv("imgdiffexe")
       if imgdiffexe then
@@ -116,11 +119,14 @@ local function ppmcheck(job)
         end
       end
   else
+    errorlevel = 0
     saveimgmd5(imgname, md5file, newmd5)
   end
+  return errorlevel
 end
 
 local function main()
+  local errorlevel = 0
   local pattern = "%" .. pdfext .. "$"
   local files = getfiles(testdir, pattern)
   for _, v in ipairs(files) do
@@ -133,13 +139,17 @@ local function main()
         rm(testdir, imgname)
       end
       ren(testdir, imgfiles[1], imgname)
-      ppmcheck(jobname(v))
+      local e = ppmcheck(jobname(v)) or 0
+      errorlevel = errorlevel + e
     else
       for _, i in ipairs(imgfiles) do
-        ppmcheck(jobname(i))
+        local e = ppmcheck(jobname(i)) or 0
+        errorlevel = errorlevel + e
       end
     end
   end
+  return errorlevel
 end
 
-main()
+local errorlevel = main()
+if os.type == "windows" then os.exit(errorlevel) end
