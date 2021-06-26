@@ -127,8 +127,17 @@ local function main()
     pdftoimg(testdir, v)
     pattern = jobname(v):gsub("%-", "%%-") .. "%-.+%" .. imgext .. "$"
     local imgfiles = getfiles(testdir, pattern)
-    for _, i in ipairs(imgfiles) do
-      ppmcheck(jobname(i))
+    if #imgfiles == 1 then
+      local imgname = jobname(v) .. imgext
+      if fileexists(testdir .. "/" .. imgname) then
+        rm(testdir, imgname)
+      end
+      ren(testdir, imgfiles[1], imgname)
+      ppmcheck(jobname(v))
+    else
+      for _, i in ipairs(imgfiles) do
+        ppmcheck(jobname(i))
+      end
     end
   end
 end
