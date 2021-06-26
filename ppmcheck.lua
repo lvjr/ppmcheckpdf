@@ -92,9 +92,9 @@ local function saveimgmd5(imgname, md5file, newmd5)
   writefile(md5file, newmd5)
 end
 
-local function ppmcheck(basename)
-  local imgname = basename .. imgext
-  local md5file = testfiledir .. "/" .. basename .. ".md5"
+local function ppmcheck(job)
+  local imgname = job .. imgext
+  local md5file = testfiledir .. "/" .. job .. ".md5"
   local newmd5 = filesum(testdir .. "/" .. imgname)
   if fileexists(md5file) then
     local oldmd5 = readfile(md5file)
@@ -106,7 +106,7 @@ local function ppmcheck(basename)
       if imgdiffexe then
         local oldimg = abspath(testfiledir) .. "/" .. imgname
         local newimg = abspath(testdir) .. "/" .. imgname
-        local diffname = basename .. ".diff.png"
+        local diffname = job .. ".diff.png"
         local cmd = imgdiffexe .. " " .. oldimg .. " " .. newimg
                     .. " -compose src " .. diffname
         print("creating image diff file " .. diffname)
