@@ -1,0 +1,106 @@
+%  -*- coding: utf-8 -*-
+\documentclass[oneside,12pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+
+\newcommand*{\myversion}{2024A}
+\newcommand*{\mydate}{Version \myversion\ (\the\year-\mylpad\month-\mylpad\day)}
+\newcommand*{\mylpad}[1]{\ifnum#1<10 0\the#1\else\the#1\fi}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt plus 1pt minus 1pt}
+
+\usepackage{codehigh}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue3,
+  linkcolor=green3,
+}
+
+\NewDocumentCommand\mypkg{m}{\textcolor{blue3}{\mbox{\ttfamily#1}}}
+\NewDocumentCommand\myopt{m}{\textcolor{brown3}{\mbox{#1}}}
+\NewDocumentCommand\mycmd{m}{\textcolor{green3}{\ttfamily\fakeverb{#1}}}
+\NewDocumentCommand\myfile{m}{\textcolor{purple3}{\mbox{#1}}}
+\NewDocumentCommand\myprg{m}{\textcolor{cyan3}{\mbox{#1}}}
+
+\begin{document}
+
+\title{\sffamily
+  \textcolor{green3}{The \texttt{ppmcheck} tool}\\
+  {\large Convert PDF to PNG and compare PNG files after \texttt{l3build}}%
+}
+\author{%
+  Jianrui Lyu (tolvjr@163.com)%
+  %\\\url{https://github.com/lvjr/ppmcheck}
+}
+\date{\mydate}
+\maketitle
+
+The \mypkg{l3build} system is a useful and powerful tool for regression testing.
+With \mypkg{l3build} you normally print the contents of some boxes from \myfile{.lvt} files
+to corresponding \myfile{.tlg} files. Sometimes \LaTeX{} kernel or some package your package
+depends on adds a whatisit or \mycmd{\kern0pt}, and your test files will fail even if
+the PDF files look the same as before and are still correct.
+
+This \mypkg{ppmcheck} tool provides an alternative way for regression testing:
+Instead of printing box contents in \myfile{.lvt} files, you could just convert PDF files
+to PNG files and compare PNG files after \mypkg{l3build} finishes its job.
+
+\section{Installation}
+
+Normally your TeX distribution will copy \myfile{ppmcheck.lua} file to the correct folder
+when you install this tool. If a manual installation is needed, you could download
+\href{https://ctan.org/pkg/ppmcheck}{\myfile{ppmcheck.lua}}
+from CTAN and install it to \myfile{TEXMF/scripts/ppmcheck/ppmcheck.lua}.
+
+The \mypkg{ppmcheck} tool uses \myprg{pdftoppm} program for image converting.
+This program is installed by default on MiKTeX. For TeX Live, you can install it by running
+\begin{codehigh}
+tlmgr install wintools.windows
+\end{codehigh}
+on Windows, or running
+\begin{codehigh}
+sudo apt-get install poppler-utils
+\end{codehigh}
+on Ubuntu/Debian Linux.
+
+\section{Usages}
+
+First create a \myfile{buildend.lua} file with the following lines in the folder of your package
+(next to \myfile{build.lua} file for \mypkg{l3build}):
+\begin{codehigh}
+kpse.set_program_name("kpsewhich")
+dofile(kpse.lookup("ppmcheck.lua"))
+\end{codehigh}
+Then you could run the folllowing commands
+\begin{codehigh}
+l3build check
+texlua buildend.lua
+\end{codehigh}
+
+The first run of \mypkg{ppmcheck} will save image and md5 files to \myfile{testfiles} folder,
+and the subsequent runs of it will compare new md5 values with existing md5 values.
+
+You could force \mypkg{ppmcheck} to save new image and md5 files to \myfile{testfiles} folder
+by passing \myopt{save} option to it:
+\begin{codehigh}
+l3build check
+texlua buildend.lua save
+\end{codehigh}
+
+\section{Customizations}
+
+The \myprg{pdftoppm} program supports several types of image files.
+By default the \mypkg{ppmcheck} tool will use \myfile{.png} file,
+and you could change it in \myfile{build.lua} file like this:
+\begin{codehigh}
+imgext = ".ppm"
+\end{codehigh}
+\begin{codehigh}
+imgext = ".pgm"
+\end{codehigh}
+\begin{codehigh}
+imgext = ".pbm"
+\end{codehigh}
+
+\end{document}

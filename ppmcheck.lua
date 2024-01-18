@@ -1,3 +1,12 @@
+#!/usr/bin/env texlua
+
+-- Description: Convert PDF to PNG and compare PNG files after l3build
+-- Copyright: 2024 (c)  Jianrui Lyu <tolvjr@163.com>
+-- Repository: https://github.com/lvjr/ppmcheck
+-- License: The LaTeX Project Public License 1.3c
+
+ppmcheck_version = "2024A"
+ppmcheck_date = "2024-01-18"
 
 --------------------------------------------
 ---- source code from l3build.lua
