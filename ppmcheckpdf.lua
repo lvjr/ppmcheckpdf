@@ -2,11 +2,11 @@
 
 -- Description: Convert PDF to PNG and compare PNG files after l3build
 -- Copyright: 2024 (c)  Jianrui Lyu <tolvjr@163.com>
--- Repository: https://github.com/lvjr/ppmcheck
+-- Repository: https://github.com/lvjr/ppmcheckpdf
 -- License: The LaTeX Project Public License 1.3c
 
-ppmcheck_version = "2024A"
-ppmcheck_date = "2024-01-18"
+ppmcheckpdf_version = "2024A"
+ppmcheckpdf_date = "2024-01-18"
 
 --------------------------------------------
 ---- source code from l3build.lua
@@ -101,7 +101,7 @@ local function saveimgmd5(imgname, md5file, newmd5)
   writefile(md5file, newmd5)
 end
 
-local function ppmcheck(job)
+local function ppmcheckpdf(job)
   local errorlevel
   local imgname = job .. imgext
   local md5file = testfiledir .. "/" .. job .. ".md5"
@@ -148,11 +148,11 @@ local function main()
         rm(testdir, imgname)
       end
       ren(testdir, imgfiles[1], imgname)
-      local e = ppmcheck(jobname(v)) or 0
+      local e = ppmcheckpdf(jobname(v)) or 0
       errorlevel = errorlevel + e
     else
       for _, i in ipairs(imgfiles) do
-        local e = ppmcheck(jobname(i)) or 0
+        local e = ppmcheckpdf(jobname(i)) or 0
         errorlevel = errorlevel + e
       end
     end

@@ -1,2 +1,2 @@
 kpse.set_program_name("kpsewhich")
-dofile(kpse.lookup("ppmcheck.lua"))
+dofile(kpse.lookup("ppmcheckpdf.lua"))

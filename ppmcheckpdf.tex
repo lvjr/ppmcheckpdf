@@ -26,12 +26,12 @@
 \begin{document}
 
 \title{\sffamily
-  \textcolor{green3}{The \texttt{ppmcheck} tool}\\
+  \textcolor{green3}{The \texttt{ppmcheckpdf} tool}\\
   {\large Convert PDF to PNG and compare PNG files after \texttt{l3build}}%
 }
 \author{%
   Jianrui Lyu (tolvjr@163.com)%
-  %\\\url{https://github.com/lvjr/ppmcheck}
+  %\\\url{https://github.com/lvjr/ppmcheckpdf}
 }
 \date{\mydate}
 \maketitle
@@ -42,18 +42,18 @@ to corresponding \myfile{.tlg} files. Sometimes \LaTeX{} kernel or some package 
 depends on adds a whatisit or \mycmd{\kern0pt}, and your test files will fail even if
 the PDF files look the same as before and are still correct.
 
-This \mypkg{ppmcheck} tool provides an alternative way for regression testing:
+This \mypkg{ppmcheckpdf} tool provides an alternative way for regression testing:
 Instead of printing box contents in \myfile{.lvt} files, you could just convert PDF files
 to PNG files and compare PNG files after \mypkg{l3build} finishes its job.
 
 \section{Installation}
 
-Normally your TeX distribution will copy \myfile{ppmcheck.lua} file to the correct folder
+Normally your TeX distribution will copy \myfile{ppmcheckpdf.lua} file to the correct folder
 when you install this tool. If a manual installation is needed, you could download
-\href{https://ctan.org/pkg/ppmcheck}{\myfile{ppmcheck.lua}}
-from CTAN and install it to \myfile{TEXMF/scripts/ppmcheck/ppmcheck.lua}.
+\href{https://ctan.org/pkg/ppmcheckpdf}{\myfile{ppmcheckpdf.lua}}
+from CTAN and install it to \myfile{TEXMF/scripts/ppmcheckpdf/ppmcheckpdf.lua}.
 
-The \mypkg{ppmcheck} tool uses \myprg{pdftoppm} program for image converting.
+The \mypkg{ppmcheckpdf} tool uses \myprg{pdftoppm} program for image converting.
 This program is installed by default on MiKTeX. For TeX Live, you can install it by running
 \begin{codehigh}
 tlmgr install wintools.windows
@@ -70,7 +70,7 @@ First create a \myfile{buildend.lua} file with the following lines in the folder
 (next to \myfile{build.lua} file for \mypkg{l3build}):
 \begin{codehigh}
 kpse.set_program_name("kpsewhich")
-dofile(kpse.lookup("ppmcheck.lua"))
+dofile(kpse.lookup("ppmcheckpdf.lua"))
 \end{codehigh}
 Then you could run the folllowing commands
 \begin{codehigh}
@@ -78,10 +78,10 @@ l3build check
 texlua buildend.lua
 \end{codehigh}
 
-The first run of \mypkg{ppmcheck} will save image and md5 files to \myfile{testfiles} folder,
+The first run of \mypkg{ppmcheckpdf} will save image and md5 files to \myfile{testfiles} folder,
 and the subsequent runs of it will compare new md5 values with existing md5 values.
 
-You could force \mypkg{ppmcheck} to save new image and md5 files to \myfile{testfiles} folder
+You could force \mypkg{ppmcheckpdf} to save new image and md5 files to \myfile{testfiles} folder
 by passing \myopt{save} option to it:
 \begin{codehigh}
 l3build check
@@ -91,7 +91,7 @@ texlua buildend.lua save
 \section{Customizations}
 
 The \myprg{pdftoppm} program supports several types of image files.
-By default the \mypkg{ppmcheck} tool will use \myfile{.png} file,
+By default the \mypkg{ppmcheckpdf} tool will use \myfile{.png} file,
 and you could change it in \myfile{build.lua} file like this:
 \begin{codehigh}
 imgext = ".ppm"
