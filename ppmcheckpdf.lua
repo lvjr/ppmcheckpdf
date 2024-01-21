@@ -5,8 +5,8 @@
 -- Repository: https://github.com/lvjr/ppmcheckpdf
 -- License: The LaTeX Project Public License 1.3c
 
-ppmcheckpdf_version = "2024A"
-ppmcheckpdf_date = "2024-01-18"
+ppmcheckpdf_version = "2024B"
+ppmcheckpdf_date = "2024-01-21"
 
 --------------------------------------------
 ---- source code from l3build.lua
