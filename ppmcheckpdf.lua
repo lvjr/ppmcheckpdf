@@ -102,7 +102,7 @@ local function saveimgmd5(imgname, md5file, newmd5)
   writefile(md5file, newmd5)
 end
 
-local isSave = false
+local issave = false
 
 local function ppmcheckpdf(job)
   local errorlevel
@@ -126,7 +126,7 @@ local function ppmcheckpdf(job)
                     .. " -compose src " .. diffname
         print("creating image diff file " .. diffname)
         run(testdir, cmd)
-      elseif isSave == true then
+      elseif issave == true then
         saveimgmd5(imgname, md5file, newmd5)
       end
     end
@@ -171,7 +171,7 @@ local function pcpMain(pcparg)
   if action == "check" then
     return doCheck(pcparg)
   elseif action == "save" then
-    isSave = true
+    issave = true
     return doCheck(pcparg)
   end
 end
