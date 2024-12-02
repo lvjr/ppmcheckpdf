@@ -5,27 +5,21 @@
 -- Repository: https://github.com/lvjr/ppmcheckpdf
 -- License: The LaTeX Project Public License 1.3c
 
-ppmcheckpdf_version = "2024B"
-ppmcheckpdf_date = "2024-01-21"
+local pcp = pcp or {}
+
+pcp.version = "2024B"
+pcp.date = "2024-01-21"
 
 --------------------------------------------
----- source code from l3build.lua
+--> \section{Some code from l3build.lua}
 --------------------------------------------
 
 local lfs = require("lfs")
 
-local assert           = assert
-local ipairs           = ipairs
-local insert           = table.insert
-local remove           = table.remove
-local lookup           = kpse.lookup
-local match            = string.match
-local gsub             = string.gsub
-
 kpse.set_program_name("kpsewhich")
-build_kpse_path = match(lookup("l3build.lua"),"(.*[/])")
+build_kpse_path = string.match(kpse.lookup("l3build.lua"),"(.*[/])")
 local function build_require(s)
-  require(lookup("l3build-"..s..".lua", { path = build_kpse_path } ) )
+  require(kpse.lookup("l3build-"..s..".lua", { path = build_kpse_path } ) )
 end
 
 -----------------------------------------
@@ -37,7 +31,16 @@ dofile("build.lua")
 
 build_require("variables")
 
-imgext = imgext or ".png"
+------------------------------------------------------------
+--> \section{Some variables and functions}
+------------------------------------------------------------
+
+local assert           = assert
+local ipairs           = ipairs
+local insert           = table.insert
+local remove           = table.remove
+local match            = string.match
+local gsub             = string.gsub
 
 local md5 = require("md5")
 
@@ -74,6 +77,12 @@ local function getfiles(path, pattern)
   end
   return files
 end
+
+------------------------------------------------------------
+--> \section{Run check or save actions}
+------------------------------------------------------------
+
+imgext = imgext or ".png"
 
 local function getimgopt(imgext)
   local imgopt = ""
@@ -163,8 +172,41 @@ local function doCheck(arglist)
   return errorlevel
 end
 
+------------------------------------------------------------
+--> \section{Print help or version text}
+------------------------------------------------------------
+
+local helptext = [[
+usage: ppmcheckpdf <action> [<options>]
+
+valid actions are:
+   check        Run tests without saving outputs of failed tests
+   save         Run tests and save outputs of failed tests
+   help         Print this message and exit
+   version      Print version information and exit
+
+valid options are:
+   -c           Set the config used for check or save action
+
+please report bug at https://github.com/lvjr/ppmcheckpdf
+]]
+
+local function help()
+  print(helptext)
+  return 0
+end
+
+local function version()
+  print("Ppmcheckpdf Version " .. pcp.version .. " (" .. pcp.date .. ")\n")
+  return 0
+end
+
+------------------------------------------------------------
+--> \section{Respond to user input}
+------------------------------------------------------------
+
 local function pcpMain(pcparg)
-  if pcparg[1] == nil then return end
+  if pcparg[1] == nil then return help() end
   local action = remove(pcparg, 1)
   -- remove leading dashes
   action = match(action, "^%-*(.*)$")
@@ -173,6 +215,13 @@ local function pcpMain(pcparg)
   elseif action == "save" then
     issave = true
     return doCheck(pcparg)
+  elseif action == "help" then
+    return help()
+  elseif action == "version" then
+    return version()
+  else
+    print("unknown action '" .. action .. "'\n")
+    return help()
   end
 end
 
