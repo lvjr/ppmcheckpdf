@@ -7,8 +7,8 @@
 
 local pcp = pcp or {}
 
-pcp.version = "2024B"
-pcp.date = "2024-01-21"
+pcp.version = "2024C"
+pcp.date = "2024-12-02"
 
 --------------------------------------------
 --> \section{Some code from l3build.lua}
