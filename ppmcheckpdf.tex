@@ -10,6 +10,8 @@
 \setlength{\parskip}{4pt plus 1pt minus 1pt}
 
 \usepackage{codehigh}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
 \usepackage{hyperref}
 \hypersetup{
   colorlinks=true,
@@ -27,7 +29,7 @@
 
 \title{\sffamily
   \textcolor{green3}{The \texttt{ppmcheckpdf} tool}\\
-  {\large Convert PDF to PNG and compare PNG files after \texttt{l3build}}%
+  {\large Image-based regression testing for LaTeX packages}%
 }
 \author{%
   Jianrui Lyu (tolvjr@163.com)%
@@ -48,10 +50,28 @@ to PNG files and compare PNG files after \mypkg{l3build} finishes its job.
 
 \section{Installation}
 
-Normally your TeX distribution will copy \myfile{ppmcheckpdf.lua} file to the correct folder
-when you install this tool. If a manual installation is needed, you could download
-\href{https://ctan.org/pkg/ppmcheckpdf}{\myfile{ppmcheckpdf.lua}}
-from CTAN and install it to \myfile{TEXMF/scripts/ppmcheckpdf/ppmcheckpdf.lua}.
+Normally your TeX distribution will copy \mypkg{ppmcheckpdf} files and
+create a binary file \myfile{ppmcheckpdf} when you install this package.
+
+If a manual installation is needed, you could copy \mypkg{ppmcheckpdf} files to TEXMF tree as follows:
+
+\noindent\begin{tblr}{X[font=\ttfamily]X[2,font=\ttfamily]}
+\toprule
+  Package file    & Where to install it \\
+\midrule
+  ppmcheckpdf.1   & TEXMF/doc/man/man1/ppmcheckpdf.1 \\
+  README.txt      & TEXMF/doc/support/ppmcheckpdf/README.txt \\
+  ppmcheckpdf.lua & TEXMF/scripts/ppmcheckpdf/ppmcheckpdf.lua \\
+\bottomrule
+\end{tblr}
+
+Then create a symbolic link from \myfile{/usr/local/bin/ppmcheckpdf} to \myfile{path/to/ppmcheckpdf.lua} on Linux or MacOS,
+or create a batch file \myfile{ppmcheckpdf.bat} in binary folder of the TeX distribution with these lines on Windows:
+
+\begin{codehigh}
+@echo off
+texlua path\to\ppmcheckpdf.lua %*
+\end{codehigh}
 
 The \mypkg{ppmcheckpdf} tool uses \myprg{pdftoppm} program for image converting.
 This program is installed by default on MiKTeX. For TeX Live, you can install it by running
@@ -66,27 +86,23 @@ on Ubuntu/Debian Linux.
 
 \section{Usages}
 
-First create a \myfile{buildend.lua} file with the following lines in the folder of your package
-(next to \myfile{build.lua} file for \mypkg{l3build}):
-\begin{codehigh}
-kpse.set_program_name("kpsewhich")
-dofile(kpse.lookup("ppmcheckpdf.lua"))
-\end{codehigh}
-Then you could run the folllowing commands
+You could call \myopt{check} action of \mypkg{ppmcheckpdf} with the folllowing commands
 \begin{codehigh}
 l3build check
-texlua buildend.lua
+ppmcheckpdf check
 \end{codehigh}
 
 The first run of \mypkg{ppmcheckpdf} will save image and md5 files to \myfile{testfiles} folder,
 and the subsequent runs of it will compare new md5 values with existing md5 values.
 
-You could force \mypkg{ppmcheckpdf} to save new image and md5 files to \myfile{testfiles} folder
-by passing \myopt{save} option to it:
+You could force \mypkg{ppmcheckpdf} to save new image and md5 files of failed tests to
+\myfile{testfiles} folder by calling \myopt{save} option of it:
 \begin{codehigh}
 l3build check
-texlua buildend.lua save
+ppmcheckpdf save
 \end{codehigh}
+
+Both \myopt{check} and \myopt{save} actions accept \myopt{-c} option, which sets the config to used.
 
 \section{Customizations}
 
