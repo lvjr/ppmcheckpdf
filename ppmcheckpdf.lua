@@ -105,19 +105,19 @@ local function pdftoimg(path, pdf)
   run(path, cmd)
 end
 
-local function saveimgmd5(imgname, md5file, newmd5)
+local function saveImgMd5(dir, imgname, md5file, newmd5)
   print("save md5 and image files for " .. imgname)
-  cp(imgname, testdir, testfiledir)
+  cp(imgname, dir, testfiledir)
   writefile(md5file, newmd5)
 end
 
 local issave = false
 
-local function ppmcheckpdf(job)
+local function checkOnePdf(dir, job)
   local errorlevel
   local imgname = job .. imgext
   local md5file = testfiledir .. "/" .. job .. ".md5"
-  local newmd5 = filesum(testdir .. "/" .. imgname)
+  local newmd5 = filesum(dir .. "/" .. imgname)
   if fileexists(md5file) then
     local oldmd5 = readfile(md5file)
     if newmd5 == oldmd5 then
@@ -129,47 +129,67 @@ local function ppmcheckpdf(job)
       local imgdiffexe = os.getenv("imgdiffexe")
       if imgdiffexe then
         local oldimg = abspath(testfiledir) .. "/" .. imgname
-        local newimg = abspath(testdir) .. "/" .. imgname
+        local newimg = abspath(dir) .. "/" .. imgname
         local diffname = job .. ".diff.png"
         local cmd = imgdiffexe .. " " .. oldimg .. " " .. newimg
                     .. " -compose src " .. diffname
         print("creating image diff file " .. diffname)
-        run(testdir, cmd)
+        run(dir, cmd)
       elseif issave == true then
-        saveimgmd5(imgname, md5file, newmd5)
+        saveImgMd5(dir, imgname, md5file, newmd5)
       end
     end
   else
     errorlevel = 0
-    saveimgmd5(imgname, md5file, newmd5)
+    saveImgMd5(dir, imgname, md5file, newmd5)
   end
   return errorlevel
 end
 
-local function doCheck(arglist)
+local function checkOneFolder(dir)
+  print("checking folder " .. dir)
   local errorlevel = 0
   local pattern = "%" .. pdfext .. "$"
-  local files = getfiles(testdir, pattern)
+  local files = getfiles(dir, pattern)
   for _, v in ipairs(files) do
-    pdftoimg(testdir, v)
+    pdftoimg(dir, v)
     pattern = "^" .. jobname(v):gsub("%-", "%%-") .. "%-%d+%" .. imgext .. "$"
-    local imgfiles = getfiles(testdir, pattern)
+    local imgfiles = getfiles(dir, pattern)
     if #imgfiles == 1 then
       local imgname = jobname(v) .. imgext
-      if fileexists(testdir .. "/" .. imgname) then
-        rm(testdir, imgname)
+      if fileexists(dir .. "/" .. imgname) then
+        rm(dir, imgname)
       end
-      ren(testdir, imgfiles[1], imgname)
-      local e = ppmcheckpdf(jobname(v)) or 0
+      ren(dir, imgfiles[1], imgname)
+      local e = checkOnePdf(dir, jobname(v)) or 0
       errorlevel = errorlevel + e
     else
       for _, i in ipairs(imgfiles) do
-        local e = ppmcheckpdf(jobname(i)) or 0
+        local e = checkOnePdf(dir, jobname(i)) or 0
         errorlevel = errorlevel + e
       end
     end
   end
   return errorlevel
+end
+
+local function checkAllFolders(arglist)
+  if #checkconfigs == 0 then
+    return checkOneFolder(testdir)
+  else
+    local errorlevel = 0
+    local dir = ""
+    for _, v in ipairs(checkconfigs) do
+      if v == "build" then
+        dir = testdir
+      else
+        dir = testdir .. "-" .. v
+      end
+      local e = checkOneFolder(dir) or 0
+      errorlevel = errorlevel + e
+    end
+    return errorlevel
+  end
 end
 
 ------------------------------------------------------------
@@ -211,10 +231,10 @@ local function pcpMain(pcparg)
   -- remove leading dashes
   action = match(action, "^%-*(.*)$")
   if action == "check" then
-    return doCheck(pcparg)
+    return checkAllFolders(pcparg)
   elseif action == "save" then
     issave = true
-    return doCheck(pcparg)
+    return checkAllFolders(pcparg)
   elseif action == "help" then
     return help()
   elseif action == "version" then
