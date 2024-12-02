@@ -17,6 +17,7 @@ local lfs = require("lfs")
 local assert           = assert
 local ipairs           = ipairs
 local insert           = table.insert
+local remove           = table.remove
 local lookup           = kpse.lookup
 local match            = string.match
 local gsub             = string.gsub
@@ -101,6 +102,8 @@ local function saveimgmd5(imgname, md5file, newmd5)
   writefile(md5file, newmd5)
 end
 
+local isSave = false
+
 local function ppmcheckpdf(job)
   local errorlevel
   local imgname = job .. imgext
@@ -123,7 +126,7 @@ local function ppmcheckpdf(job)
                     .. " -compose src " .. diffname
         print("creating image diff file " .. diffname)
         run(testdir, cmd)
-      elseif arg[1] == "save" then
+      elseif isSave == true then
         saveimgmd5(imgname, md5file, newmd5)
       end
     end
@@ -134,7 +137,7 @@ local function ppmcheckpdf(job)
   return errorlevel
 end
 
-local function main()
+local function doCheck(arglist)
   local errorlevel = 0
   local pattern = "%" .. pdfext .. "$"
   local files = getfiles(testdir, pattern)
@@ -160,5 +163,26 @@ local function main()
   return errorlevel
 end
 
+local function pcpMain(pcparg)
+  if pcparg[1] == nil then return end
+  local action = remove(pcparg, 1)
+  -- remove leading dashes
+  action = match(action, "^%-*(.*)$")
+  if action == "check" then
+    return doCheck(pcparg)
+  elseif action == "save" then
+    isSave = true
+    return doCheck(pcparg)
+  end
+end
+
+local function main()
+  return pcpMain(arg)
+end
+
+-- it equals to total number of failed tests
 local errorlevel = main()
+
+--print(errorlevel)
+
 if os.type == "windows" then os.exit(errorlevel) end
