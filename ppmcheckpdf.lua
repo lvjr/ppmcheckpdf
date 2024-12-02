@@ -173,22 +173,34 @@ local function checkOneFolder(dir)
   return errorlevel
 end
 
-local function checkAllFolders(arglist)
-  if #checkconfigs == 0 then
-    return checkOneFolder(testdir)
+local function cfgToDir(cfg)
+  if cfg == "build" then
+    return testdir
   else
-    local errorlevel = 0
-    local dir = ""
-    for _, v in ipairs(checkconfigs) do
-      if v == "build" then
-        dir = testdir
-      else
-        dir = testdir .. "-" .. v
-      end
-      local e = checkOneFolder(dir) or 0
-      errorlevel = errorlevel + e
+    return testdir .. "-" .. cfg
+  end
+end
+
+local function checkAllFolders(arglist)
+  if arglist[1] == "-c" then
+    if arglist[2] then
+      return checkOneFolder(cfgToDir(arglist[2]))
+    else
+      print("missing config name for -c option")
+      return 0
     end
-    return errorlevel
+  else
+    if #checkconfigs == 0 then
+      return checkOneFolder(testdir)
+    else
+      local errorlevel = 0
+      for _, v in ipairs(checkconfigs) do
+        local dir = cfgToDir(v)
+        local e = checkOneFolder(dir) or 0
+        errorlevel = errorlevel + e
+      end
+      return errorlevel
+    end
   end
 end
 
