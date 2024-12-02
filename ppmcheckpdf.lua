@@ -1,6 +1,6 @@
 #!/usr/bin/env texlua
 
--- Description: Convert PDF to PNG and compare PNG files after l3build
+-- Description: Image-based regression testing for LaTeX packages
 -- Copyright: 2024 (c)  Jianrui Lyu <tolvjr@163.com>
 -- Repository: https://github.com/lvjr/ppmcheckpdf
 -- License: The LaTeX Project Public License 1.3c
