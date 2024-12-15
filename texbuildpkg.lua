@@ -2,13 +2,13 @@
 
 -- Description: Image-based regression testing for LaTeX packages
 -- Copyright: 2024 (c)  Jianrui Lyu <tolvjr@163.com>
--- Repository: https://github.com/lvjr/ppmcheckpdf
+-- Repository: https://github.com/lvjr/texbuildpkg
 -- License: The LaTeX Project Public License 1.3c
 
-local pcp = pcp or {}
+local tbp = tbp or {}
 
-pcp.version = "2024C"
-pcp.date = "2024-12-02"
+tbp.version = "2025@"
+tbp.date = "2024-12-15"
 
 --------------------------------------------
 --> \section{Some code from l3build.lua}
@@ -209,7 +209,7 @@ end
 ------------------------------------------------------------
 
 local helptext = [[
-usage: ppmcheckpdf <action> [<options>]
+usage: texbuildpkg <action> [<options>]
 
 valid actions are:
    check        Run tests without saving outputs of failed tests
@@ -220,7 +220,7 @@ valid actions are:
 valid options are:
    -c           Set the config used for check or save action
 
-please report bug at https://github.com/lvjr/ppmcheckpdf
+please report bug at https://github.com/lvjr/texbuildpkg
 ]]
 
 local function help()
@@ -229,7 +229,7 @@ local function help()
 end
 
 local function version()
-  print("Ppmcheckpdf Version " .. pcp.version .. " (" .. pcp.date .. ")\n")
+  print("TeXBuildPkg Version " .. tbp.version .. " (" .. tbp.date .. ")\n")
   return 0
 end
 
@@ -237,16 +237,16 @@ end
 --> \section{Respond to user input}
 ------------------------------------------------------------
 
-local function pcpMain(pcparg)
-  if pcparg[1] == nil then return help() end
-  local action = remove(pcparg, 1)
+local function tbpMain(tbparg)
+  if tbparg[1] == nil then return help() end
+  local action = remove(tbparg, 1)
   -- remove leading dashes
   action = match(action, "^%-*(.*)$")
   if action == "check" then
-    return checkAllFolders(pcparg)
+    return checkAllFolders(tbparg)
   elseif action == "save" then
     issave = true
-    return checkAllFolders(pcparg)
+    return checkAllFolders(tbparg)
   elseif action == "help" then
     return help()
   elseif action == "version" then
@@ -258,7 +258,7 @@ local function pcpMain(pcparg)
 end
 
 local function main()
-  return pcpMain(arg)
+  return tbpMain(arg)
 end
 
 -- it equals to total number of failed tests
